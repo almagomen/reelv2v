@@ -26,6 +26,7 @@ import { useProjectStore } from "../../stores/project-store";
 import { useUIStore } from "../../stores/ui-store";
 import { useThemeStore } from "../../stores/theme-store";
 import { useRouter } from "../../hooks/use-router";
+import { useV2VProjectStore } from "../../v2v/stores/v2v-project-store";
 import {
   getExportEngine,
   getDeviceProfile,
@@ -88,6 +89,9 @@ export const Toolbar: React.FC = () => {
   } = useUIStore();
   const { mode: themeMode, toggleTheme } = useThemeStore();
   const { navigate } = useRouter();
+  const v2vProject = useV2VProjectStore(state => state.currentProject);
+  const exportV2V = useV2VProjectStore(state => state.exportProject);
+  
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isRecorderOpen, setIsRecorderOpen] = useState(false);
@@ -294,6 +298,25 @@ export const Toolbar: React.FC = () => {
     async (type: ExportType) => {
       setIsExportOpen(false);
 
+      if (v2vProject) {
+        setExportState({
+          isExporting: true,
+          progress: 50,
+          phase: "Processando en servidor v2v...",
+          error: null,
+          complete: false,
+        });
+        
+        const url = await exportV2V();
+        if (url) {
+          setExportState({ isExporting: false, progress: 100, phase: "¡Completado!", error: null, complete: true });
+          window.open(url, '_blank');
+        } else {
+          setExportState({ isExporting: false, progress: 0, phase: "", error: "Error en exportación v2v", complete: false });
+        }
+        return;
+      }
+
       try {
         if (type === "wav") {
           const writable = await showSavePicker(`${project.name || "export"}.wav`, "wav");
@@ -420,6 +443,25 @@ export const Toolbar: React.FC = () => {
   const handleCustomExport = useCallback(
     async (settings: VideoExportSettings) => {
       setIsExportDialogOpen(false);
+
+      if (v2vProject) {
+        setExportState({
+          isExporting: true,
+          progress: 30,
+          phase: "Preparando exportación personalizada v2v...",
+          error: null,
+          complete: false,
+        });
+        
+        const url = await exportV2V();
+        if (url) {
+          setExportState({ isExporting: false, progress: 100, phase: "¡Completado!", error: null, complete: true });
+          window.open(url, '_blank');
+        } else {
+          setExportState({ isExporting: false, progress: 0, phase: "", error: "Error en exportación v2v", complete: false });
+        }
+        return;
+      }
 
       try {
         const ext = settings.format === "mov" ? "mov" : settings.format === "webm" ? "webm" : "mp4";

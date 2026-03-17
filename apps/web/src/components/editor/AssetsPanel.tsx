@@ -35,6 +35,7 @@ import type { MediaItem } from "@openreel/core";
 import { AspectRatioMatchDialog } from "./dialogs/AspectRatioMatchDialog";
 import { AIGenTab } from "./AIGenTab";
 import { IconButton, Input, ScrollArea } from "@openreel/ui";
+import { V2VPanel } from "../../v2v/components/V2VPanel";
 
 const formatDuration = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -359,8 +360,8 @@ export const AssetsPanel: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "media" | "text" | "graphics" | "ai"
-  >("media");
+    "media" | "text" | "graphics" | "ai" | "v2v"
+  >("v2v");
   const [isDragOver, setIsDragOver] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState("");
@@ -681,6 +682,19 @@ export const AssetsPanel: React.FC = () => {
         >
           AI Gen
           {activeTab === "ai" && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(34,197,94,0.5)]" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab("v2v")}
+          className={`pb-3 transition-all relative ${
+            activeTab === "v2v"
+              ? "text-primary"
+              : "text-primary/70 hover:text-primary"
+          }`}
+        >
+          v2v
+          {activeTab === "v2v" && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(34,197,94,0.5)]" />
           )}
         </button>
@@ -1154,6 +1168,7 @@ export const AssetsPanel: React.FC = () => {
 
       {/* AI Tab Content */}
       {activeTab === "ai" && <AIGenTab />}
+      {activeTab === "v2v" && <V2VPanel />}
 
       {aspectRatioDialogData && (
         <AspectRatioMatchDialog
