@@ -7,7 +7,9 @@ export class LogWebSocket {
   }
 
   connect(projectId: string) {
-    const wsUrl = `ws://localhost:7860/ws/${projectId}`;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/${projectId}`;
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onmessage = (event) => {
